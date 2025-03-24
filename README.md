@@ -43,7 +43,7 @@ A web application for managing personal budget with Django backend and React fro
 1. Install nvm:
    - **macOS/Linux**:
      ```bash
-     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
      ```
    - **Windows** (using nvm-windows):
      Download and install from [nvm-windows releases](https://github.com/coreybutler/nvm-windows/releases)
