@@ -1,5 +1,5 @@
 # Frontend: React
-FROM node:18
+FROM node:22.14
 
 WORKDIR /frontend
 COPY package.json package-lock.json ./
