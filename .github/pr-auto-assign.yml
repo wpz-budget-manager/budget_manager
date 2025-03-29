@@ -1,0 +1,21 @@
+# Set to true to add reviewers to pull requests
+addReviewers: true
+
+# Set to false if you don't want to set assignees
+addAssignees: false
+
+# List of GitHub usernames to randomly select from
+reviewers:
+  - marek-robak
+  - micszab
+  - mikolajskalka
+  - MrWalu
+  # Add more reviewers as needed
+
+# Number of reviewers to randomly select (1 for a single random reviewer)
+numberOfReviewers: 1
+
+# Optional: Skip certain PRs based on keywords in title/description
+skipKeywords:
+  - wip
+  - draft
