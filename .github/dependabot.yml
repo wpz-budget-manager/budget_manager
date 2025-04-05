@@ -27,14 +27,6 @@ updates:
         update-types:
           - "minor"
           - "patch"
-    # Auto-merge configuration
-    auto-merge: true
-    automerge-options:
-      merge-method: "squash"
-      update-types:
-        - "minor"
-        - "patch"
-      require-all-status-checks: true
 
   # JavaScript dependencies
   - package-ecosystem: "npm"
@@ -58,14 +50,6 @@ updates:
         update-types:
           - "minor"
           - "patch"
-    # Auto-merge configuration
-    auto-merge: true
-    automerge-options:
-      merge-method: "squash"
-      update-types:
-        - "minor"
-        - "patch"
-      require-all-status-checks: true
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -85,11 +69,3 @@ updates:
         update-types:
           - "minor"
           - "patch"
-    # Auto-merge configuration
-    auto-merge: true
-    automerge-options:
-      merge-method: "squash"
-      update-types:
-        - "minor"
-        - "patch"
-      require-all-status-checks: true
