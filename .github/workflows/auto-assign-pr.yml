@@ -1,7 +1,10 @@
-name: 'Auto Assign PR'
+name: Auto Assign Reviewers
 on:
   pull_request:
     types: [opened, reopened]
+
+permissions:
+  pull-requests: write
 
 jobs:
   add-reviews:
@@ -10,4 +13,4 @@ jobs:
       - uses: kentaro-m/auto-assign-action@v2.0.0
         with:
           configuration-path: '.github/pr-auto-assign.yml'
-          repo-token: ${{ secrets.ASSIGN_REVIEWERS }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
