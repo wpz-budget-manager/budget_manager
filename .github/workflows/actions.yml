@@ -1,4 +1,4 @@
-name: 'Auto Assign PR'
+name: 'Auto Assign Reviewers'
 on:
   pull_request:
     types: [opened, reopened]
