@@ -1,7 +1,10 @@
-name: 'Auto Assign Reviewers'
+name: Auto Assign Reviewers
 on:
   pull_request:
     types: [opened, reopened]
+
+permissions:
+  pull-requests: write
 
 jobs:
   add-reviews:
