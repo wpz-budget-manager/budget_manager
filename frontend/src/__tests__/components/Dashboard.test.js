@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import Dashboard from "../../components/Dashboard";
 import authService from "../../services/authService";
@@ -47,12 +41,15 @@ describe("Dashboard Component", () => {
   });
 
   test("renders dashboard content after loading", async () => {
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <Dashboard />
-        </BrowserRouter>,
-      );
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <Dashboard />
+      </BrowserRouter>,
+    );
+
+    // Wait for component to load
+    await waitFor(() => {
+      expect(screen.getByText("Welcome, testuser")).toBeInTheDocument();
     });
 
     // Check if dashboard elements are rendered
@@ -76,13 +73,11 @@ describe("Dashboard Component", () => {
     // Mock getCurrentUser to return null (not logged in)
     authService.getCurrentUser.mockReturnValueOnce(null);
 
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <Dashboard />
-        </BrowserRouter>,
-      );
-    });
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <Dashboard />
+      </BrowserRouter>,
+    );
 
     // Should navigate to login
     expect(mockedNavigate).toHaveBeenCalledWith("/login");
@@ -92,13 +87,11 @@ describe("Dashboard Component", () => {
     // Mock logout success
     authService.logout.mockResolvedValueOnce({});
 
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <Dashboard />
-        </BrowserRouter>,
-      );
-    });
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <Dashboard />
+      </BrowserRouter>,
+    );
 
     // Wait for component to load
     await waitFor(() => {
@@ -106,8 +99,16 @@ describe("Dashboard Component", () => {
     });
 
     // Click logout button
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Logout" }));
+    fireEvent.click(screen.getByRole("button", { name: "Logout" }));
+
+    // Wait for the logout call to complete
+    await waitFor(() => {
+      expect(authService.logout).toHaveBeenCalled();
+    });
+
+    // Wait for the navigation to login to happen
+    await waitFor(() => {
+      expect(mockedNavigate).toHaveBeenCalledWith("/login");
     });
 
     // Should call logout and navigate to login
@@ -120,13 +121,11 @@ describe("Dashboard Component", () => {
     authService.getUserProfile.mockRejectedValueOnce(new Error("API Error"));
     console.error = jest.fn(); // Mock console.error to avoid test output pollution
 
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <Dashboard />
-        </BrowserRouter>,
-      );
-    });
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <Dashboard />
+      </BrowserRouter>,
+    );
 
     // Should still render the dashboard even if API fails
     await waitFor(() => {

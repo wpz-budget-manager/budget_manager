@@ -1,8 +1,10 @@
 import React from "react";
-import { render, screen, act } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import authService from "../../services/authService";
+
+import { Navigate } from "react-router-dom";
 
 // Mock the authService
 jest.mock("../../services/authService", () => ({
@@ -17,8 +19,6 @@ jest.mock("react-router-dom", () => {
     Navigate: jest.fn(() => null), // Return null for the Navigate component
   };
 });
-
-import { Navigate } from "react-router-dom";
 
 // React Router future flags configuration
 const routerFutureConfig = {
@@ -35,15 +35,13 @@ describe("ProtectedRoute Component", () => {
     // Mock that the user is logged in
     authService.isLoggedIn.mockReturnValue(true);
 
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <ProtectedRoute>
-            <div data-testid="protected-content">Protected Content</div>
-          </ProtectedRoute>
-        </BrowserRouter>,
-      );
-    });
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <ProtectedRoute>
+          <div data-testid="protected-content">Protected Content</div>
+        </ProtectedRoute>
+      </BrowserRouter>,
+    );
 
     // Check that protected content is rendered
     expect(screen.getByTestId("protected-content")).toBeInTheDocument();
@@ -54,15 +52,13 @@ describe("ProtectedRoute Component", () => {
     // Mock that the user is not logged in
     authService.isLoggedIn.mockReturnValue(false);
 
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <ProtectedRoute>
-            <div data-testid="protected-content">Protected Content</div>
-          </ProtectedRoute>
-        </BrowserRouter>,
-      );
-    });
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <ProtectedRoute>
+          <div data-testid="protected-content">Protected Content</div>
+        </ProtectedRoute>
+      </BrowserRouter>,
+    );
 
     // Protected content should not be in the document
     expect(screen.queryByText("Protected Content")).not.toBeInTheDocument();

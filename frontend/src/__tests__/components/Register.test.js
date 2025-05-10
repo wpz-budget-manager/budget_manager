@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import Register from "../../components/Register";
 import authService from "../../services/authService";
@@ -36,13 +30,11 @@ describe("Register Component", () => {
   });
 
   test("renders registration form correctly", async () => {
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <Register />
-        </BrowserRouter>,
-      );
-    });
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <Register />
+      </BrowserRouter>,
+    );
 
     // Check if the form elements are rendered
     expect(screen.getByText("Create an Account")).toBeInTheDocument();
@@ -65,48 +57,49 @@ describe("Register Component", () => {
     authService.register.mockResolvedValueOnce({});
     authService.login.mockResolvedValueOnce({});
 
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <Register />
-        </BrowserRouter>,
-      );
-    });
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <Register />
+      </BrowserRouter>,
+    );
 
     // Fill in the form
-    await act(async () => {
-      fireEvent.change(screen.getByLabelText("Username"), {
-        target: { value: "testuser" },
-      });
+    fireEvent.change(screen.getByLabelText("Username"), {
+      target: { value: "testuser" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Email"), {
-        target: { value: "test@example.com" },
-      });
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "test@example.com" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Password"), {
-        target: { value: "testpassword" },
-      });
+    fireEvent.change(screen.getByLabelText("Password"), {
+      target: { value: "testpassword" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Confirm Password"), {
-        target: { value: "testpassword" },
-      });
+    fireEvent.change(screen.getByLabelText("Confirm Password"), {
+      target: { value: "testpassword" },
     });
 
     // Submit the form
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
+    fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
+
+    // Wait for register to be called with correct values
+    await waitFor(() => {
+      expect(authService.register).toHaveBeenCalledWith(
+        "testuser",
+        "test@example.com",
+        "testpassword",
+        "testpassword",
+      );
     });
 
-    // Check if register was called with correct values
-    expect(authService.register).toHaveBeenCalledWith(
-      "testuser",
-      "test@example.com",
-      "testpassword",
-      "testpassword",
-    );
-
-    // Check that login was called after registration
-    expect(authService.login).toHaveBeenCalledWith("testuser", "testpassword");
+    // Wait for login to be called after successful registration
+    await waitFor(() => {
+      expect(authService.login).toHaveBeenCalledWith(
+        "testuser",
+        "testpassword",
+      );
+    });
 
     // Wait for the navigation to dashboard (correct behavior from the component)
     await waitFor(() => {
@@ -115,37 +108,31 @@ describe("Register Component", () => {
   });
 
   test("shows error when passwords do not match", async () => {
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <Register />
-        </BrowserRouter>,
-      );
-    });
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <Register />
+      </BrowserRouter>,
+    );
 
     // Fill in the form with mismatched passwords
-    await act(async () => {
-      fireEvent.change(screen.getByLabelText("Username"), {
-        target: { value: "testuser" },
-      });
+    fireEvent.change(screen.getByLabelText("Username"), {
+      target: { value: "testuser" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Email"), {
-        target: { value: "test@example.com" },
-      });
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "test@example.com" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Password"), {
-        target: { value: "testpassword" },
-      });
+    fireEvent.change(screen.getByLabelText("Password"), {
+      target: { value: "testpassword" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Confirm Password"), {
-        target: { value: "differentpassword" },
-      });
+    fireEvent.change(screen.getByLabelText("Confirm Password"), {
+      target: { value: "differentpassword" },
     });
 
     // Submit the form
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
-    });
+    fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
 
     // Check if error message is displayed
     expect(screen.getByText("Passwords do not match")).toBeInTheDocument();
@@ -163,37 +150,31 @@ describe("Register Component", () => {
       },
     });
 
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <Register />
-        </BrowserRouter>,
-      );
-    });
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <Register />
+      </BrowserRouter>,
+    );
 
     // Fill in the form
-    await act(async () => {
-      fireEvent.change(screen.getByLabelText("Username"), {
-        target: { value: "existinguser" },
-      });
+    fireEvent.change(screen.getByLabelText("Username"), {
+      target: { value: "existinguser" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Email"), {
-        target: { value: "test@example.com" },
-      });
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "test@example.com" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Password"), {
-        target: { value: "testpassword" },
-      });
+    fireEvent.change(screen.getByLabelText("Password"), {
+      target: { value: "testpassword" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Confirm Password"), {
-        target: { value: "testpassword" },
-      });
+    fireEvent.change(screen.getByLabelText("Confirm Password"), {
+      target: { value: "testpassword" },
     });
 
     // Submit the form
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
-    });
+    fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
 
     // Check if error message is displayed - updated to match actual error message in component
     await waitFor(() => {
@@ -213,37 +194,31 @@ describe("Register Component", () => {
     // Also mock login since it's called after successful registration
     authService.login.mockResolvedValueOnce({});
 
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <Register />
-        </BrowserRouter>,
-      );
-    });
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <Register />
+      </BrowserRouter>,
+    );
 
     // Fill in the form
-    await act(async () => {
-      fireEvent.change(screen.getByLabelText("Username"), {
-        target: { value: "testuser" },
-      });
+    fireEvent.change(screen.getByLabelText("Username"), {
+      target: { value: "testuser" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Email"), {
-        target: { value: "test@example.com" },
-      });
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "test@example.com" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Password"), {
-        target: { value: "testpassword" },
-      });
+    fireEvent.change(screen.getByLabelText("Password"), {
+      target: { value: "testpassword" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Confirm Password"), {
-        target: { value: "testpassword" },
-      });
+    fireEvent.change(screen.getByLabelText("Confirm Password"), {
+      target: { value: "testpassword" },
     });
 
     // Submit the form
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
-    });
+    fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
 
     // Check if button text changes to a loading state
     expect(screen.queryByText("Sign Up")).not.toBeInTheDocument();

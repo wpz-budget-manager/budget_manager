@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import Login from "../../components/Login";
 import authService from "../../services/authService";
@@ -35,13 +29,11 @@ describe("Login Component", () => {
   });
 
   test("renders login form correctly", async () => {
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <Login />
-        </BrowserRouter>,
-      );
-    });
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <Login />
+      </BrowserRouter>,
+    );
 
     // Check if the form elements are rendered
     expect(screen.getByText("Login to Budget Manager")).toBeInTheDocument();
@@ -58,62 +50,54 @@ describe("Login Component", () => {
   test("submits form with username and password", async () => {
     authService.login.mockResolvedValueOnce({});
 
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <Login />
-        </BrowserRouter>,
-      );
-    });
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <Login />
+      </BrowserRouter>,
+    );
 
     // Fill in the form
-    await act(async () => {
-      fireEvent.change(screen.getByLabelText("Username"), {
-        target: { value: "testuser" },
-      });
+    fireEvent.change(screen.getByLabelText("Username"), {
+      target: { value: "testuser" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Password"), {
-        target: { value: "testpassword" },
-      });
+    fireEvent.change(screen.getByLabelText("Password"), {
+      target: { value: "testpassword" },
     });
 
     // Submit the form
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /login/i }));
-    });
+    fireEvent.click(screen.getByRole("button", { name: /login/i }));
 
     // Check if login was called with correct values
     expect(authService.login).toHaveBeenCalledWith("testuser", "testpassword");
-    expect(mockedNavigate).toHaveBeenCalledWith("/dashboard");
+
+    // Wait for the navigation to happen after the async login completes
+    await waitFor(() => {
+      expect(mockedNavigate).toHaveBeenCalledWith("/dashboard");
+    });
   });
 
   test("shows error when login fails", async () => {
     // Mock login function to reject with an error
     authService.login.mockRejectedValueOnce({ error: "Invalid credentials" });
 
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <Login />
-        </BrowserRouter>,
-      );
-    });
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <Login />
+      </BrowserRouter>,
+    );
 
     // Fill in the form
-    await act(async () => {
-      fireEvent.change(screen.getByLabelText("Username"), {
-        target: { value: "testuser" },
-      });
+    fireEvent.change(screen.getByLabelText("Username"), {
+      target: { value: "testuser" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Password"), {
-        target: { value: "wrongpassword" },
-      });
+    fireEvent.change(screen.getByLabelText("Password"), {
+      target: { value: "wrongpassword" },
     });
 
     // Submit the form
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /login/i }));
-    });
+    fireEvent.click(screen.getByRole("button", { name: /login/i }));
 
     // Check if error message is displayed
     await waitFor(() => {
@@ -128,29 +112,23 @@ describe("Login Component", () => {
       () => new Promise((resolve) => setTimeout(() => resolve({}), 100)),
     );
 
-    await act(async () => {
-      render(
-        <BrowserRouter future={routerFutureConfig}>
-          <Login />
-        </BrowserRouter>,
-      );
-    });
+    render(
+      <BrowserRouter future={routerFutureConfig}>
+        <Login />
+      </BrowserRouter>,
+    );
 
     // Fill in the form
-    await act(async () => {
-      fireEvent.change(screen.getByLabelText("Username"), {
-        target: { value: "testuser" },
-      });
+    fireEvent.change(screen.getByLabelText("Username"), {
+      target: { value: "testuser" },
+    });
 
-      fireEvent.change(screen.getByLabelText("Password"), {
-        target: { value: "testpassword" },
-      });
+    fireEvent.change(screen.getByLabelText("Password"), {
+      target: { value: "testpassword" },
     });
 
     // Submit the form
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /login/i }));
-    });
+    fireEvent.click(screen.getByRole("button", { name: /login/i }));
 
     // Check if button text changes to "Logging in..."
     expect(
