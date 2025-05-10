@@ -6,7 +6,6 @@ addAssignees: false
 
 # List of GitHub usernames to randomly select from
 reviewers:
-  - marek-robak
   - micszab
   - mikolajskalka
   - MrWalu
