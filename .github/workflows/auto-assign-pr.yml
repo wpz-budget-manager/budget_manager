@@ -4,7 +4,8 @@ on:
     types: [opened, reopened]
 
 permissions:
-  actions: write
+  pull-requests: write
+  contents: read
 
 jobs:
   add-reviews:
