@@ -33,18 +33,14 @@ def admin_dashboard(request):
     admin_users = CustomUser.objects.filter(role="admin").count()
     regular_users = CustomUser.objects.filter(role="user").count()
 
-    context = {
+    response_data = {
         "users_count": users_count,
         "active_users": active_users,
         "admin_users": admin_users,
         "regular_users": regular_users,
     }
 
-    # For tests to pass
-    response = JsonResponse(context)
-    # Add context data to response for test assertions
-    response.context = context
-    return response
+    return JsonResponse(response_data)
 
 
 @login_required
@@ -54,15 +50,9 @@ def admin_users_list(request):
     bulk_form = UserBulkActionForm()
     bulk_form.fields["users"].queryset = users
 
-    context = {"users": users, "bulk_form": bulk_form}
-
-    response = JsonResponse(
+    return JsonResponse(
         {"users": list(users.values("id", "username", "email", "role", "is_active", "date_joined"))}
     )
-
-    # Add context data for test assertions
-    response.context = context
-    return response
 
 
 @login_required
@@ -72,10 +62,11 @@ def admin_create_user(request):
         form = AdminUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # For testing, skip the redirect and return a JSON response with context
-            response = JsonResponse(
+            # Return JSON response with user data and success message
+            return JsonResponse(
                 {
                     "success": True,
+                    "message": f"User {user.username} created successfully!",
                     "user": {
                         "id": user.id,
                         "username": user.username,
@@ -86,20 +77,13 @@ def admin_create_user(request):
                 },
                 status=200,
             )
-            response.context = {
-                "form": form,
-                "success_message": f"User {user.username} created successfully!",
-            }
-            return response
         else:
             return JsonResponse({"success": False, "errors": form.errors}, status=400)
     else:
         form = AdminUserCreationForm()
-        response = JsonResponse(
+        return JsonResponse(
             {"success": True, "message": "GET request for create user form"}, status=200
         )
-        response.context = {"form": form}
-        return response
 
 
 @login_required
@@ -109,20 +93,16 @@ def admin_delete_user(request, user_id):
 
     # Prevent admins from deleting themselves
     if user.id == request.user.id:
-        response = JsonResponse(
+        return JsonResponse(
             {"success": False, "error": "You cannot delete your own account"},
             status=400,
         )
-        response.context = {"error_message": "You cannot delete your own account."}
-        return response
 
     user_name = user.username
     user.delete()
 
-    # For testing, return a JSON response with context
-    response = JsonResponse({"success": True, "message": f"User {user_name} deleted successfully!"})
-    response.context = {"success_message": f"User {user_name} deleted successfully!"}
-    return response
+    # Return success message directly in the response
+    return JsonResponse({"success": True, "message": f"User {user_name} deleted successfully!"})
 
 
 @login_required
@@ -150,14 +130,17 @@ def admin_bulk_actions(request):
             users.update(is_active=False)
             message = f"{users.count()} user(s) deactivated successfully!"
 
-        # For testing, return a JSON response with context
-        response = JsonResponse({"success": True, "message": message})
-        response.context = {"success_message": message}
-        return response
+        # Return success message directly in the response
+        return JsonResponse({"success": True, "message": message})
     else:
-        response = JsonResponse({"success": False, "errors": form.errors}, status=400)
-        response.context = {"error_message": "Invalid form submission."}
-        return response
+        return JsonResponse(
+            {
+                "success": False,
+                "errors": form.errors,
+                "message": "Invalid form submission.",
+            },
+            status=400,
+        )
 
 
 @login_required
@@ -186,16 +169,14 @@ def admin_user_statistics(request):
         for entry in users_by_month
     ]
 
-    statistics = {
-        "total_users": total_users,
-        "active_users": active_users,
-        "inactive_users": inactive_users,
-        "admin_users": admin_users,
-        "regular_users": regular_users,
-        "users_by_month": users_by_month_data,
-    }
-
-    # For testing, return a JSON response with context
-    response = JsonResponse(statistics)
-    response.context = {"statistics": statistics}
-    return response
+    # Return statistics directly in the response
+    return JsonResponse(
+        {
+            "total_users": total_users,
+            "active_users": active_users,
+            "inactive_users": inactive_users,
+            "admin_users": admin_users,
+            "regular_users": regular_users,
+            "users_by_month": users_by_month_data,
+        }
+    )
