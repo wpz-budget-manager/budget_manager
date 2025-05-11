@@ -17,8 +17,19 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from users.api import UserViewSet, bulk_actions, user_statistics
+
+# Set up the API router
+router = DefaultRouter()
+router.register(r"users", UserViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("users/", include("users.urls")),
+    # API endpoints
+    path("api/", include(router.urls)),
+    path("api/users/bulk-actions/", bulk_actions, name="api-user-bulk-actions"),
+    path("api/users/statistics/", user_statistics, name="api-user-statistics"),
+    path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]
