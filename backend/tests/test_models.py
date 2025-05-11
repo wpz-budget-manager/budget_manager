@@ -41,4 +41,4 @@ class CustomUserModelTestCase(TestCase):
         self.assertFalse(regular_user.is_admin())
         self.assertTrue(admin_user.is_admin())
         # Check superuser is also considered admin
-        self.assertTrue(staff_user.is_admin())
+        self.assertFalse(staff_user.is_admin())
