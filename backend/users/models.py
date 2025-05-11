@@ -13,7 +13,7 @@ class CustomUser(AbstractUser):
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="user")
 
     def is_admin(self):
-        return self.role == "admin" or self.is_superuser or self.is_staff
+        return self.role == "admin" or self.is_superuser
 
     def is_user(self):
         return self.role == "user"
