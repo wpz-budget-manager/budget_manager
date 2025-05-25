@@ -1,2 +1,1 @@
 pre-commit
-django>=5.1.7

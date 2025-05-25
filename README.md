@@ -28,13 +28,15 @@ A web application for managing personal budget with Django backend and React fro
    pyenv install
    ```
 
-3. Install Python dependencies:
+3. Navigate to the backend directory and install Python dependencies:
    ```bash
+   cd backend
    pip install -r requirements.txt
    ```
 
-4. Setup pre-commit hooks:
+4. Setup pre-commit hooks (optional, from project root):
    ```bash
+   pip install -r requirements.txt  # main requirements.txt for dev tools
    pre-commit install
    ```
 
@@ -66,7 +68,12 @@ A web application for managing personal budget with Django backend and React fro
    python manage.py migrate
    ```
 
-3. Start the Django development server:
+3. (Optional) Create a Django superuser:
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+4. Start the Django development server:
    ```bash
    python manage.py runserver
    ```
@@ -96,15 +103,21 @@ If you prefer using Docker instead of setting up the environment locally:
 
 1. Make sure [Docker](https://www.docker.com/get-started) and [Docker Compose](https://docs.docker.com/compose/install/) are installed
 
-2. Start all services:
+2. Build and start all services:
    ```bash
-   docker-compose up
+   docker-compose up --build
    ```
 
 3. Access the applications:
    - Frontend: http://localhost:3000
    - Backend: http://localhost:8000
-   - Database: PostgreSQL running on port 5432
+
+4. (Optional) Create a Django superuser inside the container:
+   ```bash
+   docker-compose exec backend python manage.py createsuperuser
+   ```
+
+> Note: The application uses SQLite for local and containerized environments by default.
 
 ## Project Structure
 
@@ -112,3 +125,5 @@ If you prefer using Docker instead of setting up the environment locally:
   - `budget_manager/`: Project configuration
   - `users/`: Django app for user management
 - `frontend/`: React application
+- `requirements.txt`: development tools (e.g. pre-commit)
+- `backend/requirements.txt`: Django + API dependencies
