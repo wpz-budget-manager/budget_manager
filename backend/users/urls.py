@@ -8,11 +8,18 @@ from .views import (
     admin_delete_user,
     admin_bulk_actions,
     admin_user_statistics,
+    login_view,
+    get_csrf_token,
+    api_register_view,
+    api_login_view,
+    api_logout_view,
+    user_info,
 )
 
 urlpatterns = [
+    # Traditional Django views for browser-based usage
     path("register/", register, name="register"),
-    path("login/", auth_views.LoginView.as_view(template_name="login.html"), name="login"),
+    path("login/", login_view, name="login"),
     path("logout/", auth_views.LogoutView.as_view(next_page="/"), name="logout"),
     # Admin URLs
     path("admin-dashboard/", admin_dashboard, name="admin-dashboard"),
@@ -21,4 +28,10 @@ urlpatterns = [
     path("admin/users/delete/<int:user_id>/", admin_delete_user, name="admin-delete-user"),
     path("admin/users/bulk-actions/", admin_bulk_actions, name="admin-bulk-actions"),
     path("admin/users/statistics/", admin_user_statistics, name="admin-user-statistics"),
+    # API endpoints for React frontend
+    path("api/csrf/", get_csrf_token, name="csrf"),
+    path("api/register/", api_register_view, name="api_register"),
+    path("api/login/", api_login_view, name="api_login"),
+    path("api/logout/", api_logout_view, name="api_logout"),
+    path("api/user/", user_info, name="user_info"),
 ]

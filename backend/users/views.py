@@ -1,12 +1,25 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db.models import Count
 from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.views.decorators.http import require_POST
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+
 from .forms import RegisterForm, AdminUserCreationForm, UserBulkActionForm
 from .models import CustomUser
+from django.contrib.auth.forms import AuthenticationForm
+from django.db.models.functions import TruncMonth
+
+
+# ------------------------------
+# Traditional Django Views (HTML)
+# ------------------------------
 
 
 def register(request):
@@ -15,10 +28,36 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect("home")  # Change to your home page
+            messages.success(request, "Registration successful!")
+            return redirect("home")
     else:
         form = RegisterForm()
-    return render(request, "register.html", {"form": form})
+    return render(request, "users/register.html", {"form": form})
+
+
+def login_view(request):
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f"Welcome back, {username}!")
+                return redirect("home")
+            else:
+                messages.error(request, "Invalid username or password.")
+        else:
+            messages.error(request, "Invalid username or password.")
+    else:
+        form = AuthenticationForm()
+    return render(request, "users/login.html", {"form": form})
+
+
+# ------------------------------
+# Admin Views (JSON API for Admin Dashboard)
+# ------------------------------
 
 
 def is_admin(user):
@@ -62,7 +101,6 @@ def admin_create_user(request):
         form = AdminUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Return JSON response with user data and success message
             return JsonResponse(
                 {
                     "success": True,
@@ -80,7 +118,6 @@ def admin_create_user(request):
         else:
             return JsonResponse({"success": False, "errors": form.errors}, status=400)
     else:
-        form = AdminUserCreationForm()
         return JsonResponse(
             {"success": True, "message": "GET request for create user form"}, status=200
         )
@@ -91,17 +128,14 @@ def admin_create_user(request):
 def admin_delete_user(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 
-    # Prevent admins from deleting themselves
     if user.id == request.user.id:
         return JsonResponse(
-            {"success": False, "error": "You cannot delete your own account"},
-            status=400,
+            {"success": False, "error": "You cannot delete your own account"}, status=400
         )
 
     user_name = user.username
     user.delete()
 
-    # Return success message directly in the response
     return JsonResponse({"success": True, "message": f"User {user_name} deleted successfully!"})
 
 
@@ -116,7 +150,6 @@ def admin_bulk_actions(request):
         action = form.cleaned_data["action"]
         current_user = request.user
 
-        # Filter out current user to prevent self-deletion/deactivation
         users = users.exclude(id=current_user.id)
 
         if action == "delete":
@@ -130,15 +163,10 @@ def admin_bulk_actions(request):
             users.update(is_active=False)
             message = f"{users.count()} user(s) deactivated successfully!"
 
-        # Return success message directly in the response
         return JsonResponse({"success": True, "message": message})
     else:
         return JsonResponse(
-            {
-                "success": False,
-                "errors": form.errors,
-                "message": "Invalid form submission.",
-            },
+            {"success": False, "errors": form.errors, "message": "Invalid form submission."},
             status=400,
         )
 
@@ -146,15 +174,11 @@ def admin_bulk_actions(request):
 @login_required
 @user_passes_test(is_admin)
 def admin_user_statistics(request):
-    # Basic user statistics
     total_users = CustomUser.objects.count()
     active_users = CustomUser.objects.filter(is_active=True).count()
     inactive_users = total_users - active_users
     admin_users = CustomUser.objects.filter(role="admin").count()
     regular_users = CustomUser.objects.filter(role="user").count()
-
-    # Users created by month
-    from django.db.models.functions import TruncMonth
 
     users_by_month = (
         CustomUser.objects.annotate(month=TruncMonth("date_joined"))
@@ -163,13 +187,11 @@ def admin_user_statistics(request):
         .order_by("month")
     )
 
-    # Convert to list for JSON serialization
     users_by_month_data = [
         {"month": entry["month"].strftime("%Y-%m"), "count": entry["count"]}
         for entry in users_by_month
     ]
 
-    # Return statistics directly in the response
     return JsonResponse(
         {
             "total_users": total_users,
@@ -178,5 +200,76 @@ def admin_user_statistics(request):
             "admin_users": admin_users,
             "regular_users": regular_users,
             "users_by_month": users_by_month_data,
+        }
+    )
+
+
+# ------------------------------
+# API Views (for React Frontend)
+# ------------------------------
+
+
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    return JsonResponse({"detail": "CSRF cookie set"})
+
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def api_register_view(request):
+    form = RegisterForm(request.data)
+    if form.is_valid():
+        user = form.save()
+        login(request, user)
+        return Response(
+            {
+                "user": user.username,
+                "email": user.email,
+                "message": "Registration successful",
+            },
+            status=status.HTTP_201_CREATED,
+        )
+    return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def api_login_view(request):
+    username = request.data.get("username", "")
+    password = request.data.get("password", "")
+    user = authenticate(username=username, password=password)
+
+    if user is not None:
+        login(request, user)
+        return Response(
+            {
+                "user": user.username,
+                "email": user.email,
+                "message": "Login successful",
+                "token": "session-auth",  # Placeholder for frontend
+            },
+            status=status.HTTP_200_OK,
+        )
+    return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def api_logout_view(request):
+    logout(request)
+    return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def user_info(request):
+    user = request.user
+    return Response(
+        {
+            "username": user.username,
+            "email": user.email,
+            "is_admin": user.is_admin(),
         }
     )
