@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../services/authService";
 import "./Dashboard.css";
+import TransactionForm from "./TransactionForm";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -76,7 +77,7 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Placeholder for future budget components */}
+        <TransactionForm />
         <div className="dashboard-card">
           <h2>Recent Transactions</h2>
           <p>Your recent transactions will appear here.</p>

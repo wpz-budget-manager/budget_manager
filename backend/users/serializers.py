@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser
+from .models import CustomUser, Transaction, Category
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -45,3 +45,20 @@ class CustomUserSerializer(serializers.ModelSerializer):
             instance.save()
 
         return instance
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = "__all__"
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(), source="category", write_only=True
+    )
+
+    class Meta:
+        model = Transaction
+        fields = ["id", "amount", "description", "date", "category", "category_id"]

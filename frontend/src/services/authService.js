@@ -4,6 +4,7 @@ const API_URL = "http://localhost:8000/users/";
 
 // Create axios instance with CSRF token handling
 const axiosInstance = axios.create({
+  baseURL: "http://localhost:8000",
   withCredentials: true,
 });
 
@@ -128,3 +129,4 @@ const authService = {
 };
 
 export default authService;
+export { axiosInstance };

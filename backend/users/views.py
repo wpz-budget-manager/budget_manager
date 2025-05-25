@@ -9,10 +9,11 @@ from django.views.decorators.http import require_POST
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 
 from .forms import RegisterForm, AdminUserCreationForm, UserBulkActionForm
-from .models import CustomUser
+from .models import CustomUser, Transaction, Category
+from .serializers import TransactionSerializer, CategorySerializer
 from django.contrib.auth.forms import AuthenticationForm
 from django.db.models.functions import TruncMonth
 
@@ -273,3 +274,13 @@ def user_info(request):
             "is_admin": user.is_admin(),
         }
     )
+
+
+class TransactionViewSet(viewsets.ModelViewSet):
+    queryset = Transaction.objects.all().order_by("-date")
+    serializer_class = TransactionSerializer
+
+
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer

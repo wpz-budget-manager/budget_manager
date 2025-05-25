@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from django.contrib.auth import views as auth_views
 from .views import (
     register,
@@ -14,7 +15,13 @@ from .views import (
     api_login_view,
     api_logout_view,
     user_info,
+    TransactionViewSet,
+    CategoryViewSet,
 )
+
+router = DefaultRouter()
+router.register(r"transactions", TransactionViewSet)
+router.register(r"categories", CategoryViewSet)
 
 urlpatterns = [
     # Traditional Django views for browser-based usage
@@ -34,4 +41,6 @@ urlpatterns = [
     path("api/login/", api_login_view, name="api_login"),
     path("api/logout/", api_logout_view, name="api_logout"),
     path("api/user/", user_info, name="user_info"),
+    # API endpoints for transactions and categories
+    path("api/", include(router.urls)),
 ]
