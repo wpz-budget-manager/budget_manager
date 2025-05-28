@@ -219,7 +219,7 @@ def get_csrf_token(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def api_register_view(request):
-    form = RegisterForm(request.data)
+    form = RegisterForm(data=request.data)
     if form.is_valid():
         user = form.save()
         login(request, user)
@@ -277,10 +277,22 @@ def user_info(request):
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
-    queryset = Transaction.objects.all().order_by("-date")
+    queryset = Transaction.objects.none()
     serializer_class = TransactionSerializer
 
+    def get_queryset(self):
+        return Transaction.objects.filter(user=self.request.user).order_by("-date")
 
-class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Category.objects.all()
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.none()
     serializer_class = CategorySerializer
+
+    def get_queryset(self):
+        return Category.objects.filter(user=self.request.user).order_by("name")
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

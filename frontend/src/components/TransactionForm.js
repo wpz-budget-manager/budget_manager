@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { axiosInstance } from "../services/authService";
 
-const TransactionForm = () => {
+const TransactionForm = ({ onAddTransaction }) => {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -36,6 +36,9 @@ const TransactionForm = () => {
       setAmount("");
       setDescription("");
       setCategoryId("");
+      if (onAddTransaction) {
+        onAddTransaction();
+      }
     } catch (err) {
       console.error("Transaction failed:", err);
       setMessage("Error adding transaction.");
@@ -48,8 +51,9 @@ const TransactionForm = () => {
       {message && <p>{message}</p>}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Amount</label>
+          <label htmlFor="amount">Amount</label>
           <input
+            id="amount"
             type="number"
             step="0.01"
             value={amount}
@@ -59,8 +63,9 @@ const TransactionForm = () => {
         </div>
 
         <div className="form-group">
-          <label>Description</label>
+          <label htmlFor="description">Description</label>
           <input
+            id="description"
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -68,8 +73,9 @@ const TransactionForm = () => {
         </div>
 
         <div className="form-group">
-          <label>Date</label>
+          <label htmlFor="date">Date</label>
           <input
+            id="date"
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
@@ -78,8 +84,9 @@ const TransactionForm = () => {
         </div>
 
         <div className="form-group">
-          <label>Category</label>
+          <label htmlFor="category">Category</label>
           <select
+            id="category"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
             required

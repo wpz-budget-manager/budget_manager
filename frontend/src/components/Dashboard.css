@@ -73,3 +73,57 @@
   font-size: 1.5rem;
   color: #666;
 }
+
+.transaction-group {
+  margin-bottom: 1.5rem;
+}
+
+.transaction-date {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.transaction-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.transaction-row {
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.transaction-amount {
+  font-weight: 600;
+  text-align: left;
+}
+
+.transaction-amount.income {
+  color: #4caf50;
+}
+
+.transaction-amount.expense {
+  color: #f44336;
+}
+
+.transaction-desc {
+  color: #333;
+  font-weight: 500;
+}
+
+.transaction-category {
+  background-color: #f0f0f0;
+  color: #555;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  text-align: right;
+  white-space: nowrap;
+}
