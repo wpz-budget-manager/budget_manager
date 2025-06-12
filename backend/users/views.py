@@ -9,10 +9,11 @@ from django.views.decorators.http import require_POST
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 
 from .forms import RegisterForm, AdminUserCreationForm, UserBulkActionForm
-from .models import CustomUser
+from .models import CustomUser, Transaction, Category
+from .serializers import TransactionSerializer, CategorySerializer
 from django.contrib.auth.forms import AuthenticationForm
 from django.db.models.functions import TruncMonth
 
@@ -218,7 +219,7 @@ def get_csrf_token(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def api_register_view(request):
-    form = RegisterForm(request.data)
+    form = RegisterForm(data=request.data)
     if form.is_valid():
         user = form.save()
         login(request, user)
@@ -273,3 +274,25 @@ def user_info(request):
             "is_admin": user.is_admin(),
         }
     )
+
+
+class TransactionViewSet(viewsets.ModelViewSet):
+    queryset = Transaction.objects.none()
+    serializer_class = TransactionSerializer
+
+    def get_queryset(self):
+        return Transaction.objects.filter(user=self.request.user).order_by("-date")
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.none()
+    serializer_class = CategorySerializer
+
+    def get_queryset(self):
+        return Category.objects.filter(user=self.request.user).order_by("name")
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

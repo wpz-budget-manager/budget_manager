@@ -21,4 +21,4 @@ RUN chmod +x entrypoint.sh
 EXPOSE 8000
 
 # Run the Django application
-CMD ["./entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
