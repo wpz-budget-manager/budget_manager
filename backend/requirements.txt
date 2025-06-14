@@ -5,3 +5,4 @@ psycopg2-binary
 python-dotenv>=1.0.0
 dj-database-url
 django-cors-headers>=4.3.0
+coverage>=7.0.0
