@@ -15,6 +15,7 @@ omit =
     */node_modules/*
     .coverage
     htmlcov/*
+    */__init__.py
 
 [report]
 exclude_lines =
